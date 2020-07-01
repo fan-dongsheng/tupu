@@ -1,6 +1,6 @@
 <template>
   <el-container class="home-container">
-    <el-header>
+    <el-header style="height:58px;">
       <div>
         <img src="../assets/u230.png" class="img-home-logo" alt />
         <span>航天知识图谱</span>
@@ -16,9 +16,10 @@
           unique-opened
           :collapse-transition="false"
           @select="handleSelected"
+          
         >
           <!-- 一级菜单 -->
-          <el-submenu :index="item.id + ''" v-for="item in menulist" :key="item.id">
+          <el-submenu :index="item.id + ''"   v-for="item in menulist" :key="item.id">
             <!-- 一级菜单的模板区域 -->
             <template slot="title">
               <!-- 图标 -->
@@ -28,7 +29,7 @@
               <!-- <span>{{item.authName}}</span> -->
             </template>
           </el-submenu>
-          <el-menu-item :index="item.index" v-for="item in aside_list" :key="item.index">
+          <el-menu-item :index="item.index"   v-for="item in aside_list" :key="item.index">
             <!-- 一级菜单的模板区域 -->
             <template slot="title">
               <!-- 图标 -->
@@ -91,7 +92,7 @@ export default {
           index: 'search',
           title: '智能检索',
           name: 'Search',
-          icon: 'u228',
+          icon: 'icon1',
           component: '@/components/search/Search.vue',
           path: 'search',
           menuorigin: 'local'
@@ -100,7 +101,7 @@ export default {
           index: 'atlasAnalysis',
           title: '图谱分析',
           name: 'AtlasAnalysis',
-          icon: 'u196',
+          icon: 'icon2',
           component: '@/components/AtlasAnalysis.vue',
           path: 'atlasAnalysis',
           menuorigin: 'local'
@@ -109,7 +110,7 @@ export default {
           index: 'collaboration',
           title: '协作共享',
           name: 'Collaboration',
-          icon: 'u200',
+          icon: 'icon3',
           component: '@/components/Collaboration.vue',
           path: 'collaboration',
           menuorigin: 'local'
@@ -356,12 +357,16 @@ export default {
     align-items: center;
     span {
       margin-left: 15px;
+      font-size: 24px;
     }
   }
 }
 .el-aside {
   .el-menu {
     border-right: none;
+    .el-menu-item{
+color:rgba(109,135,167,1);
+    }
   }
   border: 2px !important;
   border-style: solid !important;
@@ -370,15 +375,15 @@ export default {
   //border-color: #C7CEDA !important;
 }
 .img-home-logo {
-  width: 49px;
+  width: 47x;
   height: 34px;
 }
 .icom {
   margin-right: 10px;
   left: 0px;
   top: 0px;
-  width: 23px;
-  height: 23px;
+  width: 20px;
+  height: 20px;
 }
 .el-tabs--border-card > .el-tabs__content {
   padding: 0px;

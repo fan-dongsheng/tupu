@@ -138,8 +138,9 @@
       </el-row>
     </div>
     <div v-for="item in modellist.content.datas" class="model_info" :key="item.enetityid">
+      
       <el-row class="div_border model_info_title">
-        <el-col :span="22" class="col_conent">【{{item.enetitylabel}}】{{item.enetityvalue}}</el-col>
+        <el-col :span="22" class="col_conent">【{{modelid=item.enetitylabel}}】{{productid=item.enetityvalue}}</el-col>
         <el-col :span="2" class="col_conent">
           <img src="@/images/u253.png" class="u253_img" />
           <img src="@/images/u254.png" class="u253_img" />
@@ -165,11 +166,30 @@
               @click="showPreview(item.enetitylabel,item.enetityvalue)"
             >归零报告{{item.guilingquanlity}}篇</a>
           </el-col>
-          <el-col :span="4">
-            <a
+          <el-col :span="4" >
+            <el-popover
+              placement="bottom"
+              class="show"
+              width="400"
+              trigger="hover"
+            >
+              <div>
+                <div v-for="m in datalist.id.datas" :key="m.qualityid">
+                  <a
+              href="#"
+               class="a_popover"
+              @click="showPreview(item.enetitylabel,item.enetityvalue)"
+            >
+            {{m.zhiliangwenti}}
+            </a>
+                </div>
+              </div>
+              <el-button slot="reference" style="padding:0;" type="text">质量问题{{item.wentiquanlity}}个</el-button>
+            </el-popover>
+            <!-- <a
               href="#"
               @click="showPreview(item.enetitylabel,item.enetityvalue)"
-            >质量问题{{item.wentiquanlity}}个</a>
+            >质量问题{{item.wentiquanlity}}个</a> -->
           </el-col>
           <!-- <el-col :span="4">关联产品{{item.chanpinquanlity}}个</el-col> -->
         </el-row>
@@ -196,13 +216,18 @@ export default {
   props: {
 
     searchkey: String ,
-    modellist: Array,
+    // modellist: Object,
   },
   data() {
     return {
+      modelid:'',
+      productid:'',
+      datalist:null, //质量问题
       isMponentHide: true,
       isFaultHide: true,
-      //modellist:[],
+      modellist:{
+        
+      },
       // 获取列表的参数对象
       queryInfo: {
         query: '',
@@ -215,12 +240,29 @@ export default {
       key:''
     }
   },
-  created() {
-
+  mounted() {
+//事件监听
+        this.$on('modelSearch', function () {
+  
+          this.getSearch();
+this.getSearch();
+ 
+        })
     //this.pageinfo();
   },
 
   methods: {
+    //最下面质量问题的展示
+    async getReport() {
+      const data = await this.$ajax.get(`http://192.168.43.228:8081/api/filenum/${this.modelid}/${this.productid}`)
+      if (data.status !== 200) {
+        return this.$message.error('获取报告失败！')
+      }
+console.log(data,'质量报告111111');
+
+      this.datalist = data.data
+      
+    },
     pageinfo(){
       this.key=this.searchkey;
       this.total=this.modellist.content.count
@@ -257,7 +299,8 @@ export default {
         return this.$message.error('获取检索结果失败！')
       }
       this.modellist=data.data;
-      console.log(this.modelist);
+     this.getReport()
+      console.log(data,'搜索结果查看');
       this.total = this.modellist.content.count
     },
 

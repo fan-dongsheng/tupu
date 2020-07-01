@@ -28,10 +28,11 @@
 export default {
   props: {
     searchkey: String ,
-    otherlist: Array
+    // otherlist: Array
   },
   data() {
     return {
+      otherlist:null,
       isMponentHide: true,
       isFaultHide: true,
        // 获取列表的参数对象
@@ -45,8 +46,13 @@ export default {
       total: 0
     }
   },
-  created() {
+  mounted() {
+    //事件监听
+        this.$on('otherSearch', function () {
+          this.getSearch();
+        })
     //  test();
+    // this.getSearch()  //点击panel的分布显示
   },
   methods: {
     onMShow: function() {

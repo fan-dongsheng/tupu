@@ -10,7 +10,8 @@
           :fetch-suggestions="querySearch"
           placeholder="请输入内容"
           @select="handleSelect"
-          @input="getSearchrank"
+          @input="getKwos"
+          :debounce="300"
           @keyup.enter.native="search"
         >
           <!-- <i class="el-icon-edit el-input__icon"
@@ -47,8 +48,9 @@
           :fetch-suggestions="querySearch"
           placeholder="请输入内容"
           @select="handleSelect"
-          @input="getSearchrank"
+          @input="getKwos"
           @keyup.enter.native="search"
+         
         >
           <label
             v-for="(item,index) in categories"
@@ -59,7 +61,7 @@
           <template slot-scope="{ item }">
             <el-row>
               <el-col :span="22">
-                <div>{{ item.name }}</div>
+                <div>{{ item.value=item.name }}</div>
               </el-col>
               <el-col style="text-align:right" :span="2">
                 <div>{{item.quality}}</div>
@@ -79,7 +81,7 @@
               class="tab-pane-content"
               name="model"
             >
-              <model  :searchkey="searchKeyword" :modellist="modellist.data"></model>
+              <model  :searchkey="searchKeyword" ref="model" ></model>
             </el-tab-pane>
             <el-tab-pane
               :label="`产品(${productlist.num})`"
@@ -87,7 +89,7 @@
               class="tab-pane-content"
               name="product"
             >
-              <product :searchkey="searchKeyword" :productlist="productlist.data"></product>
+              <product :searchkey="searchKeyword" ref="product" ></product>
             </el-tab-pane>
             <el-tab-pane
               :label="`质量问题(${qualityproblemlist.num})`"
@@ -95,7 +97,8 @@
               class="tab-pane-content"
               name="qualityproblem"
             >
-              <quality-problem :searchkey="searchKeyword" :qualityproblemlist="qualityproblemlist.data"></quality-problem>
+            
+              <quality-problem :searchkey="searchKeyword" ref="qualityproblem" ></quality-problem>
             </el-tab-pane>
             <el-tab-pane
               :label="`其他(${otherlist.num})`"
@@ -103,7 +106,7 @@
               class="tab-pane-content"
               name="other"
             >
-              <other :searchkey="searchKeyword" :otherlist="otherlist.data"></other>
+              <other :searchkey="searchKeyword" ref="other" ></other>
             </el-tab-pane>
           </el-tabs>
         </el-col>
@@ -183,21 +186,21 @@ export default {
   },
   data() {
     return {
-      keyword:'',
+      state:'',
       searchKeyword: '',
       keywords: [],
       issearch: false,
-      activeName: 'model',
+      activeName: '',
       isModel: true,
       isProduct: false,
       isQualityproblem: false,
       isOther: false,
       categories: [],
       relatedtext: [],
-      modellist: [],
-      productlist: [],
-      qualityproblemlist: [],
-      otherlist: [],
+      modellist: {}, //型号
+      productlist: {},  //产品
+      qualityproblemlist: {},  //质量问题
+      otherlist: {},   //其他
       // 获取列表的参数对象
       queryInfo: {
         query: '',
@@ -225,12 +228,26 @@ export default {
 
       e.currentTarget.value === 'other' ? (this.isOther = true) : (this.isOther = false)
     },
+    //获取搜索列表的数据
+    async getKwos(){
+      const {data}=await this.$ajax({
+        url:`http://192.168.43.228:8081/api/rank/${this.searchKeyword}`,
+       
+      })
+      // console.log(data,'模糊搜索的列表');
+      this.keywords = data
+      this.getSearchrank()  //启用输入框搜索型号展示
+    },
     async getKeywords() {
-      const data = await this.$ajax.get('http://192.168.43.228:8081/api/rank/')
-
-      if (data.status !== 200) {
-        return this.$message.error('获取关键字检索列表失败！')
-      }
+      const data = await this.$ajax({
+        url:`http://192.168.43.228:8081/api/rank/`
+        
+      })
+      // console.log(data,'获取搜索列表');
+      
+      // if (data.status !== 200) {
+      //   return this.$message.error('获取关键字检索列表失败！')
+      // }
       this.keywords = data.data
     },
     querySearch(queryString, cb) {
@@ -240,16 +257,20 @@ export default {
       cb(results)
     },
     createFilter(queryString) {
-      return keyword => {
-        return keyword.name.toLowerCase().indexOf(queryString.toLowerCase()) === 0
+      return (searchKeyword) => {
+        return (searchKeyword.name.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        
       }
     },
     async getSearchrank() {
-      const data = await this.$ajax.get(`http://192.168.43.228:8081/api/searchclf/${this.searchKeyword}`)
+      try {
+        const data = await this.$ajax.get(`http://192.168.43.228:8081/api/searchclf/${this.searchKeyword}`)
       if (data.status !== 200) {
         clearSearch()
         return this.$message.error('获取检索分类失败！')
       }
+      console.log(data,'搜索型号');
+      
       this.categories = data.data
       this.categories.forEach((item, index) => {
         if (item === 'chanpin') {
@@ -260,28 +281,35 @@ export default {
         }
       })
       console.log(this.categories)
+      } catch (error) {
+        console.log(error);
+        
+      }
+      
     },
     async getSearch() {
       const data = await this.$ajax.get(`http://192.168.43.228:8081/api/search/${this.searchKeyword}`)
       if (data.status !== 200) {
         return this.$message.error('获取检索结果失败！')
       }
+      console.log(data,'检索页面');
+      
       if (data.data) {
         data.data.forEach(item => {
           if (item.name && item.name.indexOf('型号') != -1) {
             this.modellist = item
-            console.log(this.modellist)
+            console.log(this.modellist,'型号1111111')
           } else if (item.name && item.name.indexOf('产品') != -1) {
             this.productlist = item
-            console.log(this.productlist)
+            console.log(this.productlist,'产品1111111')
           } else if (item.name && item.name.indexOf('质量问题') != -1) {
             this.qualityproblemlist = item
 
-            console.log(this.qualityproblemlist)
+            console.log(this.qualityproblemlist,'质量11111')
           } else if (item.name && item.name.indexOf('others') != -1) {
             this.otherlist = item
 
-            console.log(this.otherlist)
+            console.log(this.otherlist,'其他1111111')
           } else if (item.relatedtext) {
             this.relatedtext = item.relatedtext
           }
@@ -293,7 +321,7 @@ export default {
         } else if (this.qualityproblemlist.num > 0) {
           this.activeName = 'qualityproble'
         } else if (this.otherlist.num > 0) {
-          this.otherlist = 'other'
+          this.activeName = 'other'
         }
       }
     },
@@ -313,16 +341,17 @@ export default {
     },
     test() {
       return [
-        { name: '三全鲜食（北新泾店）', quality: 1000 },
-        { name: 'Hot honey 首尔炸鸡（仙霞路）', quality: 100 },
-        { name: '新旺角茶餐厅', quality: 10 }
+        // { name: '三全鲜食（北新泾店）', quality: 1000 },
+        // { name: 'Hot honey 首尔炸鸡（仙霞路）', quality: 100 },
+        // { name: '新旺角茶餐厅', quality: 10 }
       ]
     },
     handleSelect(item) {
       console.log(item)
     },
     search() {
-      if (this.searchKeyword.length === 0) {
+      this.activeName=''
+      if (!this.searchKeyword) {
         return this.$message.error('请输入检索关内容！')
       }
       this.issearch = true
@@ -341,7 +370,27 @@ export default {
     this.keywords = this.getKeywords()
     //this.keywords = this.test()
   },
-  computed: {}
+  computed: {},
+  watch: {
+        activeName: function(val) {
+          console.log(val,'11111111111111111111111111111111111');
+          
+     if(val === 'model'){
+          // 触发‘型号子组’查询事件
+          this.$refs.model.$emit('modelSearch') 
+        }else if(val==='product')
+        {
+          // 触发‘产品子组’查询事件
+          this.$refs.product.$emit('productSearch') 
+        }else if(val==='qualityproblem'){
+          // 触发‘质量问题子组’查询事件
+          this.$refs.qualityproblem.$emit('qualityproblemSearch') 
+        }else if(val==='other'){
+          // 触发产品‘其他子组’查询事件
+          this.$refs.other.$emit('otherSearch') 
+        }
+    }
+  }
 }
 </script>
 

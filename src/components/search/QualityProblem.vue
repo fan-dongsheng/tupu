@@ -187,10 +187,11 @@
 export default {
   props: {
     searchkey: String ,
-    qualityproblemlist: Array
+    // qualityproblemlist: Object
   },
   data() {
     return {
+      qualityproblemlist:null,
       isMponentHide: true,
       isFaultHide: true,
       // 获取列表的参数对象
@@ -204,8 +205,13 @@ export default {
       total: 0
     }
   },
-  created() {
+  mounted() {
+    //事件监听
+        this.$on('qualityproblemSearch', function () {
+          this.getSearch();
+        })
     //  test();
+    // this.getSearch()  //搜索
   },
   methods: {
     onMShow: function() {
@@ -239,6 +245,8 @@ export default {
       if (data.status !== 200) {
         return this.$message.error('获取检索结果失败！')
       }
+      console.log(data,'质量问题panel');
+      
       this.qualityproblemlist=data.data;
       console.log(this.qualityproblemlist);
       this.total = this.qualityproblemlist.content.count

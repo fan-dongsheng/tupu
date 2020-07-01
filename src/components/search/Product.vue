@@ -172,10 +172,11 @@ export default {
   props: {
 
     searchkey: String ,
-    productlist: Array
+    // productlist: Array
   },
   data() {
     return {
+      productlist:null,
       isMponentHide: true,
       isFaultHide: true,
       // 获取列表的参数对象
@@ -189,8 +190,12 @@ export default {
       total: 0
     }
   },
-  created() {
+  mounted() {
     //  test();
+    //事件监听
+        this.$on('productSearch', function () {
+          this.getSearch();
+        })
   },
   methods: {
     onMShow: function() {

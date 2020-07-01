@@ -35,15 +35,18 @@
       </div>
     </el-col>
 
-    <el-col :span="14" class="conten_div">
+    <el-col :span="13" class="conten_div">
       <div class="conten_div p_div_border content">
         <el-row class="title_div row_height">
-          <el-col :span="22">文件名：【{{content.filetittle}}.{{content.filetype}}】</el-col>
-          <el-col :span="1">
-            <a href="#" @click.stop.prevent="handlePreview">预览</a>
+          <el-col :span="18">文件名：【{{content.filetittle}}.{{content.filetype}}】</el-col>
+          <el-col :span="2">
+            <a href="#" @click.stop.prevent="handlePreview(`${content.filetittle}.${content.filetype}`)"><el-button type="text">预览</el-button></a>
           </el-col>
-          <el-col :span="1">
-            <a href="#" @click.stop.prevent>下载</a>
+          <el-col :span="2">
+            <a target="_blank" :href="`http://192.168.43.228:8081/api/download/docx/${content.filetittle}.${content.filetype}`" :underline="false" :download="`${content.filetittle}.${content.filetype}`">
+                <el-button type="text">下载</el-button>
+              </a>
+            <!-- <a href="#" @click.stop.prevent>下载</a> -->
           </el-col>
         </el-row>
 
@@ -55,7 +58,7 @@
       </div>
     </el-col>
 
-    <el-col :span="5" class="conten_div" v-if="true">
+    <el-col :span="5" class="conten_div" v-if="true" style="margin-left:15px;">
       <div class="conten_div p_div_border">
         <el-row class="title_div row_height">
           <el-col>关联实体</el-col>
@@ -119,6 +122,7 @@ export default {
       if (data.status !== 200) {
         return this.$message.error('获取报告失败！')
       }
+console.log(data,'质量报告111111');
 
       this.datalist = data.data
       this.total = this.datalist.id.count
@@ -142,9 +146,13 @@ export default {
       this.queryInfo.pagenum = newPage
       this.getReport()
     },
-    handlePreview() {
-      var url = 'http://127.0.0.1:8080/file/test.txt' //要预览文件的访问地址
-      window.open('http://127.0.0.1:8012/onlinePreview?url=' + encodeURIComponent(url))
+    //文件预览
+    handlePreview(filename) {
+window.open(`http://192.168.43.228:8012/onlinePreview?url=http://192.168.43.228:8081/media/doc/${filename}`)
+      // var u='http://192.168.43.228:8081/media'
+      // window.open(`${u}/${filename}`)
+      // var url = 'http://127.0.0.1:8080/file/test.txt' //要预览文件的访问地址
+      // window.open('http://127.0.0.1:8012/onlinePreview?url=' + encodeURIComponent(url))
     }
   },
 
@@ -179,6 +187,7 @@ export default {
 }
 .conten_div {
   height: 99%;
+  
 }
 .title_div {
   border-bottom: 2px solid @border_c;

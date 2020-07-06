@@ -113,6 +113,8 @@ export default {
   },
   data() {
     return {
+      total:10, //总数分页
+      input2:'', //搜索导航
       tk: "slkdflksadflasdjf",
       resultlist: [{ username: '发射车故障' }, { username: '系统_型号组成关系' }, { username: '产品_型号组成关系' }],
       searchVisible: false,
@@ -152,7 +154,7 @@ export default {
       this.historyVisible = true
     },
     doHistory() {
-      this.$ajax.get('http://localhost:8023/getHistoriesByType?type=knowledge')
+      this.$ajax.get('http://192.168.0.169:8023/getHistoriesByType?type=knowledge')
         .then(res => {
           let tableData = []
           res.data.data.histories.forEach((val, index, arr) => {
@@ -212,7 +214,7 @@ export default {
     },
     nodeSearch(keyword) {
       this.backCount = 1
-      this.$ajax.get('http://localhost:8023/MapDisplay/subGraph?nodeName=' + keyword)
+      this.$ajax.get('http://192.168.0.169:8023/MapDisplay/subGraph?nodeName=' + keyword)
         .then(res => {
           this.resNode = res.data.nodes
           update()

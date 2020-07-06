@@ -131,7 +131,7 @@
     </div>
     <div v-for="item in productlist.content.datas" class="model_info" :key="item.enetityid">
       <el-row class="div_border model_info_title">
-        <el-col :span="24" class="col_conent">【{{item.enetitylabel}}】{{item.enetityvalue}}</el-col>
+        <el-col :span="24" class="col_conent">【{{modelid=item.enetitylabel}}】{{productid=item.enetityvalue}}</el-col>
       </el-row>
       <el-row class="content_left">
         <el-row>
@@ -147,8 +147,31 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="4">归零报告{{item.guilingquanlity}}篇</el-col>
-          <el-col :span="4">质量问题{{item.wentiquanlity}}个</el-col>
+          <el-col :span="4"> <a
+              href="#"
+              @click="showPreview(item.enetitylabel,item.enetityvalue)"
+            >归零报告{{item.guilingquanlity}}篇</a></el-col>
+          <!-- <el-col :span="4">归零报告{{item.guilingquanlity}}篇</el-col> -->
+          <el-popover
+              placement="bottom"
+              class="show"
+              width="400"
+              trigger="hover"
+            >
+              <div>
+                <div v-for="m in datalist.id.datas" :key="m.qualityid">
+                  <a
+              href="#"
+               class="a_popover"
+              @click="showPreview(item.enetitylabel,item.enetityvalue)"
+            >
+            {{m.zhiliangwenti}}
+            </a>
+                </div>
+              </div>
+              <el-button slot="reference" style="padding:0;" type="text">质量问题{{item.wentiquanlity}}个</el-button>
+            </el-popover>
+          <!-- <el-col :span="4">质量问题{{item.wentiquanlity}}个</el-col> -->
           <!-- <el-col :span="4">关联产品{{item.chanpinquanlity}}个</el-col> -->
         </el-row>
       </el-row>
@@ -176,6 +199,9 @@ export default {
   },
   data() {
     return {
+       modelid:'',
+      productid:'',
+      datalist:null, //质量问题
       productlist:null,
       isMponentHide: true,
       isFaultHide: true,
@@ -195,9 +221,21 @@ export default {
     //事件监听
         this.$on('productSearch', function () {
           this.getSearch();
+ this.getSearch();
         })
   },
   methods: {
+     //最下面质量问题的展示
+    async getReport() {
+      const data = await this.$ajax.get(`http://192.168.43.228:8081/api/filenum/${this.modelid}/${this.productid}`)
+      if (data.status !== 200) {
+        return this.$message.error('获取报告失败！')
+      }
+console.log(data,'质量报告111111');
+
+      this.datalist = data.data
+      
+    },
     onMShow: function() {
       this.isMponentHide = false //点击onShow切换为false，显示为展开画面
     },
@@ -230,6 +268,7 @@ export default {
         return this.$message.error('获取检索结果失败！')
       }
       this.productlist=data.data;
+      this.getReport()
       console.log(this.productlist);
       this.total = this.productlist.content.count
     },

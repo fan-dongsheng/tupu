@@ -1,44 +1,77 @@
 <template>
-  <el-row>
-    <el-col :span="4">
-      <!--<el-row class="row-sr">-->
-        <!--<el-col>详情</el-col>-->
-      <!--</el-row>-->
+  <el-row  type="flex" justify="space-around" >
+    <el-col :span="4" style="border-right:1px solid #ccc;padding-right:5px;">
       <el-row class="row-sr">
+        <el-tabs v-model="activeName" @tab-click="handleClick">
+            <el-tab-pane label="知识检索" name="first">
+         <div class="middel">
+           <el-row class="row-sr">
         <el-col>
-          <el-input placeholder="输入关键字搜索" suffix-icon="el-icon-search" v-model="input2"></el-input>
+        
+          <el-input placeholder="输入关键字搜索" size="small" suffix-icon="el-icon-search" v-model="state" @change="changeValue"></el-input>
         </el-col>
       </el-row>
-      <el-row class="row-sr">
+      <!-- <el-row class="row-sr">
         <el-col>搜索结果</el-col>
-      </el-row>
+      </el-row> -->
       <el-row
         class="row-sr"
         v-for="item of listData"
-        :key="item.id">
+        :key="item.name">
         <div @click="nodeSearch(item.name)">
           <el-col :span="6">
             <img src="@/images/u262x.png" class="img_size1"/>
           </el-col>
           <el-col :span="18">
-            <div>{{item.name}}</div>
-            <div>{{item.mainKey}}</div>
-            <div>{{item.detail}}</div>
+            <div style="margin-bottom:5px;">{{item.entitylabel}}</div>
+            <div style="margin-bottom:5px;"><span class="spn"> 主键：</span>{{item.entitykey}}</div>
+            <div><span class="spn"> 本体：</span>{{item.entityvalue}}</div>
           </el-col>
         </div>
       </el-row>
-      <div class="pagination_d">
-        <!-- 分页区域 -->
+           </div>     
+
+     <div class="paget">
+<!-- 分页区域 -->
         <el-pagination
-          :current-page="1"
-          :page-sizes="[1, 2, 5, 10]"
-          :page-size="1"
-          layout="total, sizes, prev, pager, next, jumper"
+        small
+         @current-change="handleCurrentChange"
+          :current-page="page.current"
+          :pager-count="5"
+          :page-size="page.pageSize"
+          layout="prev, pager, next"
           :total="total"
         ></el-pagination>
-      </div>
+
+     </div>
+            </el-tab-pane>
+            <!-- 关系检索========================================================== -->
+            <el-tab-pane label="关系检索" name="second">
+              <div class="middel1">
+              <el-input style="margin-bottom:10px;" clearable size="small" v-model="relation.inputScor" placeholder="请输入实体"></el-input>
+              <el-input style="margin-bottom:10px;" clearable size="small" v-model="relation.inputTage" placeholder="请输入实体"></el-input>
+               <el-button type="primary" round size="mini" @click="getShortestPath">检索</el-button>
+              
+              </div>
+              
+            </el-tab-pane>
+            <el-tab-pane label="实体检索" name="third">
+              
+                    <div class="middel1">
+              <el-input style="margin-bottom:10px;" clearable size="small" v-model="ent.input" placeholder="请输入实体"></el-input>
+              
+               <el-button type="primary" round size="mini" @click="nodeSearch(ent.input)">检索</el-button>
+              
+              </div>
+
+
+              </el-tab-pane>
+            
+          </el-tabs>
+      </el-row>
+      
     </el-col>
-    <el-col :span="15">
+    <el-col :span="14" style="margin-left:10px;">
       <el-row>
         <el-col :span="20">
           <img src="@/images/u1445.png" class="img_size" @click="backShow"/>
@@ -60,14 +93,16 @@
         </el-col>
       </el-row>
     </el-col>
-    <el-col :span="5">
+    <el-col :span="5" >
       <el-row class="row-sr">
         <el-tabs type="border-card">
           <el-tab-pane label="实体">
+            <div class="middel1">
             <el-table :data="this.resNode">
               <el-table-column type="index" label="序号"></el-table-column>
               <el-table-column label="实体名称" prop="name"></el-table-column>
             </el-table>
+            </div>
           </el-tab-pane>
           <el-tab-pane label="关系"></el-tab-pane>
           <el-tab-pane label="事件">
@@ -100,6 +135,7 @@
   </el-row>
 </template>
 <script>
+const host ='http://192.168.43.228:8081'
 import Theme from '../components/Theme.vue'
 import {load} from './js/graph.js'
 import {update} from "./js/update";
@@ -111,10 +147,28 @@ export default {
   components:{
     Theme
   },
+  mounted(){
+     this.restaurants = this.loadAll();
+  },
   data() {
     return {
+      //实体检索input
+      ent:{
+        input:'中北大学'
+      },
+      // 关系检索input
+      relation:{
+        inputScor:'中北大学',
+        inputTage:'北京航空航天大学'
+      },
+       restaurants: [],
+        state: '', //多选选中值
+       activeName: 'first', //左侧检索实体
       total:10, //总数分页
-      input2:'', //搜索导航
+      page:{
+        current:1,
+        pageSize:5
+      },
       tk: "slkdflksadflasdjf",
       resultlist: [{ username: '发射车故障' }, { username: '系统_型号组成关系' }, { username: '产品_型号组成关系' }],
       searchVisible: false,
@@ -127,11 +181,12 @@ export default {
       searchFormRules: {
         search: [{ required: true, message: '请输入查询的内容', trigger: 'blur' }]
       },
-      listData:[{id:0,name:"中北大学",mainKey:"问题1",detail:"分系统1"},
-                {id:1,name:"北京理工大学",mainKey:"问题2",detail:"分系统2"},
-                {id:2,name:"北京航空航天大学",mainKey:"问题3",detail:"分系统3"},
-                {id:3,name:"三部",mainKey:"问题4",detail:"分系统4"},
-                {id:4,name:"304",mainKey:"问题5",detail:"分系统5"}],
+      listData:[],
+      // listData:[{id:0,name:"中北大学",mainKey:"问题1",detail:"分系统1"},
+      //           {id:1,name:"北京理工大学",mainKey:"问题2",detail:"分系统2"},
+      //           {id:2,name:"北京航空航天大学",mainKey:"问题3",detail:"分系统3"},
+      //           {id:3,name:"三部",mainKey:"问题4",detail:"分系统4"},
+      //           {id:4,name:"304",mainKey:"问题5",detail:"分系统5"}],
       nodeData: Object,
       searchNode:'',
       backCount: 1,
@@ -140,6 +195,60 @@ export default {
     }
   },
   methods: {
+    // 监听 页码值 改变的事件
+    handleCurrentChange(newPage) {
+      console.log(newPage)
+      this.page.current= newPage
+      this.getSearchNeoEntity(this.state)
+    },
+    //输入input值
+    changeValue(value){
+      console.log(value,1111111111);
+      
+      
+this.getSearchNeoEntity(value)
+    },
+    //模糊搜索接口
+
+   async getSearchNeoEntity(value){
+     const {data}=await this.$ajax({
+       url:`${host}/api/searchNeoEntity/${value}?page=${this.page.current}&size=${this.page.pageSize}`
+     })
+     console.log(data,'sousuo===============');
+     this.total=data.count
+     this.listData=data.datas
+    },
+    //模糊搜索
+    querySearch(queryString, cb) {
+        var restaurants = this.restaurants;
+        var results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
+      createFilter(queryString) {
+        return (state) => {
+          return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+       loadAll(){
+         return [
+          { "value": "三全鲜食（北新泾店）", "address": "长宁区新渔路144号" },
+          { "value": "Hot honey 首尔炸鸡（仙霞路）", "address": "上海市长宁区淞虹路661号" },
+          { "value": "新旺角茶餐厅", "address": "上海市普陀区真北路988号创邑金沙谷6号楼113" },
+          { "value": "泷千家(天山西路店)", "address": "天山西路438号" }
+         ]
+       },
+        handleSelect(item) {
+        console.log(item);
+       item.value=this.state
+      },
+      handleIconClick(ev) {
+        console.log(ev);
+      },
+    //检索tabs
+    handleClick(){
+
+    },
     searchDialogClosed() {
       this.backCount = 1
       this.$refs.addressFormRef.resetFields()
@@ -212,6 +321,23 @@ export default {
       this.backCount = 1
       this.themeVisible = true
     },
+    //关系检索
+    async getShortestPath(){
+      this.backCount = 1
+      const {data}=await this.$ajax({
+        url:`http://192.168.0.169:8023/MapDisplay/getShortestPath`,
+        params:{
+          node1Name:this.relation.inputScor,
+          node2Name:this.relation.inputTage
+        }
+      })
+      this.resNode = data.nodes
+          update()
+          load(data,720,false)
+     
+      
+    },
+    //知识检索，实体检索
     nodeSearch(keyword) {
       this.backCount = 1
       this.$ajax.get('http://192.168.0.169:8023/MapDisplay/subGraph?nodeName=' + keyword)
@@ -283,6 +409,34 @@ export default {
 
 </script>
 <style lang="less" scoped>
+/deep/ .el-input__suffix{
+  cursor: pointer;
+}
+.spn{
+  font-weight: 700;
+}
+.paget{
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.middel{
+  height: calc(100vh - 131px);
+  
+ overflow-y: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+}
+.middel1{
+  height: calc(100vh - 121px);
+  
+ overflow-y: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+}
   .img_size {
     width: 30px;
     height: 30px;
@@ -298,15 +452,15 @@ export default {
     background-color: #fff;
   }
 .row-sr {
-  padding-left: 5px;
+  
   padding-top: 10px;
   padding-bottom: 15px;
   border-bottom: 0.5px;
-  border-bottom-style: solid;
+  border-bottom-style: solid #ccc;
   border-bottom-color: #797979;
   //height: 50px;
-  border-right: 1px;
-  border-right-style: solid;
+  // border-right: 1px;
+  // border-right-style: solid;
 
   //   border-style: solid;
   //   border-top: 0.5px;

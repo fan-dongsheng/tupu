@@ -398,9 +398,13 @@ color:rgba(109,135,167,1);
   box-sizing: border-box;
   // min-height: 100% ;
   // max-height: auto;
-  height: 100% ;
-  padding-bottom: 50px;
-  overflow-y: hidden !important;
+//   height: calc(100% - 20px);
+  
+//  overflow-y: auto;
+//     &::-webkit-scrollbar {
+//       display: none;
+//     }
+  // overflow-y: hidden !important;
 }
 .localTabDiv {
   height: 98%;

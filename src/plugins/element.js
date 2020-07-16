@@ -27,7 +27,8 @@ import {
     Dialog,
     Select,
     Option,
-    Transfer
+    Transfer,
+    Loading 
 } from 'element-ui'
 
 Vue.use(Button)
@@ -57,5 +58,5 @@ Vue.use(Dialog)
 Vue.use(Select)
 Vue.use(Option)
 Vue.use(Transfer)
-
+Vue.use(Loading )
 Vue.prototype.$message = Message

@@ -1,11 +1,24 @@
 <template>
   <div>
 
-    <div class="div_border" v-for="item in otherlist.content.datas" :key="item.fileid">
-      <div class="marginBootom">{{item.filetittle}}</div>
-      <el-row>
+    <div class="div_border" v-for="(item,index) in otherlist.content.datas" :key="index">
+      <!-- <div class="marginBootom">{{item.filetittle}}</div> -->
+      <div style="position: relative;">
+<a href="#"  width="400" @click.prevent="showPreviewbyid(item.fileid)" v-html="item.filetittle">{{item.filetittle}}</a>
+      <!-- 向下的角箭头符号，用css画 -->
+       <img src="@/images/u_up.png" class="arrow_img1" :class="{arrow_img2:index==active}" @click="onIsShow(index)" />
+       <!-- 向上的角箭头符号 -->
+       <!-- <img src="@/images/u_up.png" class="arrow_img2" v-else  @click="onIsShow('wo')" /> -->
+      </div>
+      <el-row class="row">
         <el-col :span="23">
-             <div v-html="item.filecontent"  class="summary"></div>
+          <div class="txtHide" >
+             <div v-html="item.filecontent"  class="summary" :class="{summary1:index==active}"></div>
+          </div>
+            <!-- <div class="txtShow" v-else>
+             <div v-html="item.filecontent"  class="summary1"></div>
+          </div> -->
+             
         </el-col>
       </el-row>
     </div>
@@ -32,6 +45,8 @@ export default {
   },
   data() {
     return {
+      active:999,
+      isShow:true,
       otherlist:null,
       isMponentHide: true,
       isFaultHide: true,
@@ -41,7 +56,7 @@ export default {
         // 当前的页数
         pagenum: 1,
         // 当前每页显示多少条数据
-        pagesize: 2
+        pagesize: 5
       },
       total: 0
     }
@@ -55,6 +70,14 @@ export default {
     // this.getSearch()  //点击panel的分布显示
   },
   methods: {
+    onIsShow(index){
+      if(index==this.active){
+        this.active=999
+        return
+      }
+      this.active=index
+this.isShow=!this.isShow
+    },
     onMShow: function() {
       this.isMponentHide = false //点击onShow切换为false，显示为展开画面
     },
@@ -66,6 +89,13 @@ export default {
     },
     onFHide: function() {
       this.isFaultHide = true
+    },
+    showPreviewbyid(id) {
+      this.$router.push({ path: '/preview', query: { flag: 0, id: id } })
+      // this.$router.push({name: 'preview', params: {id: id}})
+      // this.$router.replace({name:'preview', params: {}}, () => { this.warning('test!') }, () => { this.warning('test!') })
+      // let routeData = this.$router.resolve({ path: '/preview', query: { id: 1 } })
+      // window.open('preview', '_blank')
     },
 
     async getSearch() {
@@ -95,4 +125,32 @@ export default {
 </script>
 <style lang="less"  scoped>
 @import '@/assets/css/search.less';
+.summary1{
+  overflow: hidden;
+    text-overflow: clip;
+    display: -webkit-box;
+    -webkit-box-orient: inherit;
+    -webkit-line-clamp: 2;
+}
+.arrow_img1 {
+  width: 25px;
+  height: 10px;
+  position: absolute;
+  top: 5px;
+  right: 20px;
+  cursor: pointer;
+}
+.arrow_img2 {
+  width: 25px;
+  height: 10px;
+  position: absolute;
+  top: 5px;
+  right: 20px;
+  cursor: pointer;
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
 </style>

@@ -7,7 +7,7 @@
         </el-row>
         <el-row>
           <el-col>
-            <ul class="col-content">
+            <ul class="col-content top">
               <li v-for="(item,i) in datalist.id.datas" :key="item.qualityid">
                 {{i+1}}
                 <a
@@ -18,9 +18,11 @@
             </ul>
           </el-col>
         </el-row>
-        <el-row>
+        <el-row type="flex" justify="center">
           <!-- 分页区域 -->
+          
 
+        
           <el-pagination
             layout="prev, pager, next"
             @current-change="handleCurrentChange"
@@ -28,6 +30,7 @@
             :total="total"
             :page-size="queryInfo.pagesize"
           ></el-pagination>
+            
           <!-- 分页区域 -->
           <!-- <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum"
           :page-sizes="[1, 2, 5, 10]" :page-size="queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total">-->
@@ -52,7 +55,7 @@
 
         <el-row>
           <el-col>
-            <div v-html="content.filecontent" class="col-content"></div>
+            <div v-html="content.filecontent" class="col-content bottom"></div>
           </el-col>
         </el-row>
       </div>
@@ -65,12 +68,14 @@
         </el-row>
         <el-row>
           <el-col>
-            <div>【质量问题】{{content.entity.zhiliangwenti}}</div>
-            <div>【型号】{{content.entity.xinhao}}</div>
-            <div>【产品】{{content.entity.chanpin}}</div>
-            <div>【问题部件】{{content.entity.wentibujian}}</div>
-            <div>【异常描述】{{content.entity.yichangmiaoshu}}</div>
-            <div>【发生问题时间】{{content.entity.fashengwentishijian}}</div>
+            <div class="bottom1">
+              <div class="bo-1"><span class="title">【质量问题】</span> {{content.entity.zhiliangwenti}}</div>
+              <div class="bo-1"><span class="title">【型号】</span>{{content.entity.xinhao}}</div>
+              <div class="bo-1"><span class="title">【产品】</span>{{content.entity.chanpin}}</div>
+              <div class="bo-1"><span class="title">【问题部件】</span>{{content.entity.wentibujian}}</div>
+              <div class="bo-1"><span class="title">【异常描述】</span>{{content.entity.yichangmiaoshu}}</div>
+              <div class="bo-1"><span class="title">【发生问题时间】</span>{{content.entity.fashengwentishijian}}</div>
+            </div>
           </el-col>
         </el-row>
       </div>
@@ -158,14 +163,17 @@ window.open(`http://192.168.43.228:8012/onlinePreview?url=http://192.168.43.228:
 
   mounted() {
     //this.$route.query.key
+    console.log("mounted.")
   },
   //flag=0就只返回一个报告，
   created() {
-    if (this.$route.query.flag === 0) {
+    if (this.$route.query.flag.toString() === '0' ) {
+      console.log(this.$route.query,'================');
+      
       this.flag = this.$route.query.flag
       this.modelid = this.$route.query.id
       this.getReportByid(this.$route.query.flag, this.$route.query.id)
-    } else if (this.$route.query.flag === 1) {
+    } else if (this.$route.query.flag.toString() === '1') {
       this.flag = this.$route.query.flag
       this.modelid = this.$route.query.modelid
       this.productid = this.$route.query.productid
@@ -210,6 +218,26 @@ a {
 .col-content {
   margin-top: @left;
   margin-left: @left;
+  
+}
+.top{
+  height: calc(100vh - 126px);
+  overflow-y: auto;
+}
+.bottom{
+  height: calc(100vh - 96px);
+  overflow-y: auto;
+}
+.bottom1{
+  height: calc(100vh - 81px);
+  overflow-y: auto;
+  .bo-1{
+    margin: 5px 0;
+  }
+  .title{
+    font-weight: 700;
+
+  }
 }
 .collapse-item-header {
   padding-left: @left;

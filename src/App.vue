@@ -32,9 +32,15 @@ body {
   display: block;
   margin: 0px;
 }
+.el-popover{
+  max-height: 200px;
+  overflow-y: auto;
+  
+}
 html,body,#app{
   width: 100%;
   height: 100%;
   /*overflow-y: auto !important;*/
 }
 </style>
+

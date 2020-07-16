@@ -16,10 +16,9 @@
           unique-opened
           :collapse-transition="false"
           @select="handleSelected"
-          
         >
           <!-- 一级菜单 -->
-          <el-submenu :index="item.id + ''"   v-for="item in menulist" :key="item.id">
+          <el-submenu :index="item.id + ''" v-for="item in menulist" :key="item.id">
             <!-- 一级菜单的模板区域 -->
             <template slot="title">
               <!-- 图标 -->
@@ -29,7 +28,7 @@
               <!-- <span>{{item.authName}}</span> -->
             </template>
           </el-submenu>
-          <el-menu-item :index="item.index"   v-for="item in aside_list" :key="item.index">
+          <el-menu-item :index="item.index" v-for="item in aside_list" :key="item.index">
             <!-- 一级菜单的模板区域 -->
             <template slot="title">
               <!-- 图标 -->
@@ -65,9 +64,10 @@
               v-html="item.content"
             ></div>
             <div v-else class="localTabDiv">
-              <keep-alive :include="keepAliveTagsList">
+              <router-view v-if="item['isShow'] == 'true'" class="overflow_h"></router-view>
+              <!-- <keep-alive :include="keepAliveTagsList">
                 <router-view v-if="item['isShow'] == 'true'" class="overflow_h"></router-view>
-              </keep-alive>
+              </keep-alive>-->
             </div>
           </el-tab-pane>
         </el-tabs>
@@ -89,12 +89,12 @@ export default {
 
       aside_list: [
         {
-          index: 'search',
+          index: '/search',
           title: '智能检索',
           name: 'Search',
           icon: 'icon1',
           component: '@/components/search/Search.vue',
-          path: 'search',
+          path: '/search',
           menuorigin: 'local'
         },
         {
@@ -103,7 +103,7 @@ export default {
           name: 'AtlasAnalysis',
           icon: 'icon2',
           component: '@/components/AtlasAnalysis.vue',
-          path: 'atlasAnalysis',
+          path: '/atlasAnalysis',
           menuorigin: 'local'
         },
         {
@@ -112,9 +112,9 @@ export default {
           name: 'Collaboration',
           icon: 'icon3',
           component: '@/components/Collaboration.vue',
-          path: 'collaboration',
+          path: '/collaboration',
           menuorigin: 'local'
-        },
+        }
         // {
         //   index: 'test',
         //   title: 'test',
@@ -338,8 +338,8 @@ export default {
   font-size: 14px;
   color: #868686;
 }
-.overflow_h{
-  overflow-y:hidden;
+.overflow_h {
+  overflow-y: hidden;
 }
 .home-container {
   height: 100%;
@@ -364,13 +364,13 @@ export default {
 .el-aside {
   .el-menu {
     border-right: none;
-    .el-menu-item{
-color:rgba(109,135,167,1);
+    .el-menu-item {
+      color: rgba(109, 135, 167, 1);
     }
   }
   border: 2px !important;
   border-style: solid !important;
-  border-color: #B1D2FF !important;
+  border-color: #b1d2ff !important;
 
   //border-color: #C7CEDA !important;
 }
@@ -391,25 +391,25 @@ color:rgba(109,135,167,1);
   overflow-x: hidden;
   //position: absolute;
   width: 100%;
- // top: 29px;
+  // top: 29px;
   bottom: 0px;
 }
 #innerTab .el-tabs__content {
   box-sizing: border-box;
   // min-height: 100% ;
   // max-height: auto;
-//   height: calc(100% - 20px);
-  
-//  overflow-y: auto;
-//     &::-webkit-scrollbar {
-//       display: none;
-//     }
+  //   height: calc(100% - 20px);
+
+  //  overflow-y: auto;
+  //     &::-webkit-scrollbar {
+  //       display: none;
+  //     }
   // overflow-y: hidden !important;
 }
 .localTabDiv {
   height: 98%;
   width: 99.4%;
- // padding-top: 5px;
+  // padding-top: 5px;
   padding-left: 10px;
   /*overflow-y: auto;*/
 }
@@ -427,8 +427,8 @@ color:rgba(109,135,167,1);
   top: 0px;
   bottom: 0px;
 }
-.el-tabs--card>.el-tabs__header{
-  border-bottom: 2px solid #B1D2FF !important;
+.el-tabs--card > .el-tabs__header {
+  border-bottom: 2px solid #b1d2ff !important;
 }
 </style>
 

@@ -430,7 +430,7 @@ function drawCirclePartition(d) {
   }
 
   function myExtendNode() {
-    axios.get('http://192.168.0.169:8023/MapDisplay/subGraph?nodeName=' + d.name)
+    axios.get('http://192.168.191.3:8023/MapDisplay/subGraph?nodeName=' + d.name)
       .then(res=>{
         // console.log(res.data)
         let comData = res.data

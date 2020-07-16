@@ -3,7 +3,7 @@
 // serverE:客户端请求的关系数据
 export function update(serverD, serverE) {
     // 先清空布局中的图形元素
-    d3.select("#svgGraph").remove();
+    d3.selectAll("svg").remove();
     // nodes,edges
 
 }

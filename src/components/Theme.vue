@@ -137,7 +137,7 @@ export default {
       formData.append('userId', userIdList.toString())
       formData.append('picId', this.themeForm.picId)
       this.$ajax({
-        url: 'http://192.168.0.169:8023/upload/pic/addImage',
+        url: 'http://192.168.191.3:8023/upload/pic/addImage',
         method: 'post',
         data: formData
       }).then(res => {

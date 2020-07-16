@@ -1,8 +1,8 @@
 <template>
   <el-row type="flex" justify="space-around">
-    <el-col :span="4" style="border-right:1px solid #ccc;padding-right:5px;">
+    <el-col :span="5" style="border-right:1px solid #ccc;padding-right:5px;" v-show="hidden">
       <el-row class="row-sr">
-        <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tabs v-model="activeName" @tab-click="handleClick" type="border-card">
           <el-tab-pane label="知识检索" name="first">
             <div class="middel">
               <el-row class="row-sr">
@@ -16,9 +16,7 @@
                   ></el-input>
                 </el-col>
               </el-row>
-              <!-- <el-row class="row-sr">
-        <el-col>搜索结果</el-col>
-              </el-row>-->
+            
               <el-row class="row-sr" v-for="item of listData" :key="item.name">
                 <div @click="nodeSearch(item.name)">
                   <el-col :span="6">
@@ -53,8 +51,9 @@
             </div>
           </el-tab-pane>
           <!-- 关系检索========================================================== -->
-          <el-tab-pane label="关系检索" name="second">
+          <el-tab-pane label="图谱检索" name="second">
             <div class="middel1">
+              <div>关系检索</div>
               <el-input
                 style="margin-bottom:10px;"
                 clearable
@@ -70,10 +69,10 @@
                 placeholder="请输入实体"
               ></el-input>
               <el-button type="primary" round size="mini" @click="getShortestPath">检索</el-button>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="实体检索" name="third">
-            <div class="middel1">
+           
+
+             <div>
+               <div>实体检索</div>
               <el-input
                 style="margin-bottom:10px;"
                 clearable
@@ -84,11 +83,16 @@
 
               <el-button type="primary" round size="mini" @click="nodeSearch(ent.input)">检索</el-button>
             </div>
+
+             </div>
           </el-tab-pane>
+          
+           
+         
         </el-tabs>
       </el-row>
     </el-col>
-    <el-col :span="14" style="margin-left:10px;">
+    <el-col :span="13" style="margin-left:10px;">
       <el-row>
         <el-col :span="20">
           <img src="@/images/u1445.png" class="img_size" @click="backShow" />
@@ -105,12 +109,12 @@
       </el-row>
       <el-row>
         <el-col>
-          <div id="kgpp" ref="tuImage"></div>
+          <div id="container" ref="tuImage"></div>
           <!--<kg-plot :loadData="this.nodeData" :wide="720"></kg-plot>-->
         </el-col>
       </el-row>
     </el-col>
-    <el-col :span="5">
+    <el-col :span="5" v-show="hidden">
       <el-row class="row-sr">
         <el-tabs type="border-card">
           <el-tab-pane label="统计">
@@ -226,20 +230,23 @@
 <script>
 const host = 'http://192.168.43.228:8081'
 import Theme from '../components/Theme.vue'
-import { load } from './js/graph.js'
+// import { load } from './js/graph.js'
 import { update } from './js/update'
-import { getGraphData } from './js/graph.js'
-import { gethistCache } from './js/graph'
-
+// import { getGraphData } from './js/graph.js'
+// import { gethistCache } from './js/graph'
+import {pltKg} from "./js/pltkg";
 export default {
   components: {
     Theme
   },
   mounted() {
     this.restaurants = this.loadAll()
+    
+    
   },
   data() {
     return {
+      hidden:true,
       //实体检索input
       ent: {
         input: '中北大学'
@@ -287,6 +294,12 @@ export default {
     }
   },
   methods: {
+    //svg启动程序
+    initSvg(data){
+      
+      pltKg(data)
+      // this.hidden=false
+    },
     // 监听 页码值 改变的事件
     handleCurrentChange(newPage) {
       console.log(newPage)
@@ -353,7 +366,7 @@ export default {
     },
     doHistory() {
       this.$ajax
-        .get('http://192.168.0.169:8023/getHistoriesByType?type=knowledge')
+        .get('http://192.168.191.3:8023/getHistoriesByType?type=knowledge')
         .then(res => {
           let tableData = []
           res.data.data.histories.forEach((val, index, arr) => {
@@ -411,29 +424,38 @@ export default {
       this.backCount = 1
       this.themeVisible = true
     },
+    //处理后台返回的数据
+dataCur(){
+
+},
     //关系检索
     async getShortestPath() {
       this.backCount = 1
       const { data } = await this.$ajax({
-        url: `http://192.168.0.169:8023/MapDisplay/getShortestPath`,
+        url: `http://192.168.191.3:8023/MapDisplay/getShortestPath`,
         params: {
           node1Name: this.relation.inputScor,
           node2Name: this.relation.inputTage
         }
       })
+      console.log(data,'关系检索=============');
       this.resNode = data.nodes
-      update()
-      load(data, 720, false)
+       update()
+      this.initSvg(data)
+     
+      // load(data, 720, false)
     },
     //知识检索，实体检索
     nodeSearch(keyword) {
       this.backCount = 1
       this.$ajax
-        .get('http://192.168.0.169:8023/MapDisplay/subGraph?nodeName=' + keyword)
+        .get('http://192.168.191.3:8023/MapDisplay/subGraph?nodeName=' + keyword)
         .then(res => {
           this.resNode = res.data.nodes
-          update()
-          load(res.data, 720, false)
+          // update()
+          // load(res.data, 720, false)
+           update()
+          this.initSvg(res.data)
         })
         .catch(error => {
           this.$alert('知识检索失败！', '错误', {
@@ -500,6 +522,67 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+  @font-face {font-family: "iconfont";
+    src: url('//at.alicdn.com/t/font_1925900_6ahf9ivf635.eot?t=1594021059769'); /* IE9 */
+    src: url('//at.alicdn.com/t/font_1925900_6ahf9ivf635.eot?t=1594021059769#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('data:application/x-font-woff2;charset=utf-8;base64,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') format('woff2'),
+    url('//at.alicdn.com/t/font_1925900_6ahf9ivf635.woff?t=1594021059769') format('woff'),
+    url('//at.alicdn.com/t/font_1925900_6ahf9ivf635.ttf?t=1594021059769') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+    url('//at.alicdn.com/t/font_1925900_6ahf9ivf635.svg?t=1594021059769#iconfont') format('svg'); /* iOS 4.1- */
+  }
+
+  .iconfont {
+    font-family: "iconfont" !important;
+    font-size: 16px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .icon-shilaji:before {
+    content: "\e622";
+  }
+
+  .icon-icon-test:before {
+    content: "\e633";
+  }
+
+  .icon-icon-test1:before {
+    content: "\e634";
+  }
+
+  .icon-icon-test2:before {
+    content: "\e63d";
+  }
+
+  .icon-icon-test3:before {
+    content: "\e63f";
+  }
+
+  .icon-icon-test4:before {
+    content: "\e641";
+  }
+
+  .icon-icon-test5:before {
+    content: "\e642";
+  }
+
+  h1, h2 {
+  font-weight: normal;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+
+
 /deep/ .el-input__suffix {
   cursor: pointer;
 }

@@ -46,7 +46,7 @@ export default {
     }
   },
   mounted () {
-      this.$ajax.get('http://192.168.0.169:8023/upload/pic/findPicById?userId=100013')
+      this.$ajax.get('http://192.168.191.3:8023/upload/pic/findPicById?userId=100013')
         .then(res => {
           this.imageList = res.data
           console.log(res.data)

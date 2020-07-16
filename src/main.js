@@ -7,7 +7,7 @@ import './plugins/element.js'
 import './assets/css/global.css'
 import axios from 'axios'
 import * as d3 from 'd3'
-
+import './assets/styles/iconfont.css'
 Vue.prototype.$d3 = d3;
 window.d3 = d3;
 

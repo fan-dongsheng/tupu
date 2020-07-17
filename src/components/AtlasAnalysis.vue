@@ -1,7 +1,7 @@
 <template>
-  <el-row type="flex" justify="space-around">
-    <el-col :span="5" style="border-right:1px solid #ccc;padding-right:5px;" v-show="hidden">
-      <el-row class="row-sr">
+  <div type="flex" justify="space-around" class="atlas">
+    <div  style="border-right:1px solid #ccc;padding-right:5px;" v-show="hidden">
+      <el-row class="row-sr" style="width:198px;">
         <el-tabs v-model="activeName" @tab-click="handleClick" type="border-card">
           <el-tab-pane label="知识检索" name="first">
             <div class="middel">
@@ -91,8 +91,8 @@
          
         </el-tabs>
       </el-row>
-    </el-col>
-    <el-col :span="13" style="margin-left:10px;">
+    </div>
+    <div  style="margin-left:10px;flex:1;">
       <el-row>
         <el-col :span="20">
           <img src="@/images/u1445.png" class="img_size" @click="backShow" />
@@ -113,8 +113,8 @@
           <!--<kg-plot :loadData="this.nodeData" :wide="720"></kg-plot>-->
         </el-col>
       </el-row>
-    </el-col>
-    <el-col :span="5" v-show="hidden">
+    </div>
+    <div  v-show="hidden">
       <el-row class="row-sr">
         <el-tabs type="border-card">
           <el-tab-pane label="统计">
@@ -206,7 +206,7 @@
           </el-tab-pane>
         </el-tabs>
       </el-row>
-    </el-col>
+    </div>
     <!-- 搜索话框 -->
     <el-dialog title="定位搜索" :visible.sync="searchVisible" width="30%" @close="searchDialogClosed">
       <el-input v-model="searchNode" placeholder="请输入内容" class="input-with-select">
@@ -225,7 +225,7 @@
     <el-dialog title="分享图谱" :visible.sync="themeVisible" width="750px">
       <Theme v-on:flag="shutDialog" v-bind:haoba="this.$refs.tuImage"></Theme>
     </el-dialog>
-  </el-row>
+  </div>
 </template>
 <script>
 const host = 'http://192.168.43.228:8081'
@@ -522,6 +522,10 @@ dataCur(){
 }
 </script>
 <style lang="less" scoped>
+.atlas{
+  display: flex;
+  padding-right: 10px;
+}
   @font-face {font-family: "iconfont";
     src: url('//at.alicdn.com/t/font_1925900_6ahf9ivf635.eot?t=1594021059769'); /* IE9 */
     src: url('//at.alicdn.com/t/font_1925900_6ahf9ivf635.eot?t=1594021059769#iefix') format('embedded-opentype'), /* IE6-IE8 */
@@ -655,6 +659,7 @@ a {
   background-color: #fff;
 }
 .row-sr {
+  
   padding-top: 10px;
   padding-bottom: 15px;
   border-bottom: 0.5px;
